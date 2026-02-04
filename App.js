@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -15,21 +15,12 @@ import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { useFonts, DotGothic16_400Regular } from '@expo-google-fonts/dotgothic16';
 import { VT323_400Regular } from '@expo-google-fonts/vt323';
-import { Settings, Wind, Droplets, Sun, Eye, Gauge, Thermometer, X, Cloud, CloudRain, CloudLightning, SunDim } from 'lucide-react-native';
+import { Settings, Search, X } from 'lucide-react-native';
 import { fetchWeather, reverseGeocode } from './src/api';
+import { RealFeelCircle, UVRing, VisibilityCone, HumidityCylinder, SunsetCurve, AQIDotMatrix } from './src/components/NothingWidgets';
+import { DotIcon } from './src/components/DotIcons';
 
 const { width } = Dimensions.get('window');
-
-const ICON_MAP = {
-  'Clear sky': Sun,
-  'Mainly clear': SunDim,
-  'Partly cloudy': Cloud,
-  'Overcast': Cloud,
-  'Rain': CloudRain,
-  'Drizzle': CloudRain,
-  'Thunderstorm': CloudLightning,
-  'Night': Sun, // Should be Moon but Lucide Moon is fine
-};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -79,7 +70,7 @@ export default function App() {
   if (!fontsLoaded || loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#FF0000" />
+        <ActivityIndicator size="large" color="#D71921" />
       </View>
     );
   }
@@ -88,8 +79,6 @@ export default function App() {
     setRefreshing(true);
     loadData();
   };
-
-  const WeatherIcon = ICON_MAP[weather?.current.description] || Cloud;
 
   return (
     <View style={styles.container}>
@@ -102,59 +91,83 @@ export default function App() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#D71921" />
         }
       >
+        {/* Top Header */}
         <SafeAreaView style={styles.header}>
-          <View>
+          <TouchableOpacity style={styles.iconBtn}>
+            <Search size={22} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.cityContainer}>
             <Text style={styles.cityName}>{locationName.toUpperCase()}</Text>
-            <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase()}</Text>
+            <View style={styles.pagers}>
+              <View style={[styles.pagerDot, styles.pagerDotActive]} />
+              <View style={styles.pagerDot} />
+            </View>
           </View>
-          <TouchableOpacity style={styles.settingsBtn} onPress={() => setShowSettings(true)}>
-            <Settings size={20} color="#fff" strokeWidth={1} />
+          <TouchableOpacity style={styles.iconBtn} onPress={() => setShowSettings(true)}>
+            <Settings size={22} color="#fff" />
           </TouchableOpacity>
         </SafeAreaView>
 
-        <View style={styles.currentSection}>
-          <Text style={styles.mainTemp}>{weather?.current.temp}°</Text>
-          <Text style={styles.weatherDesc}>{weather?.current.description.toUpperCase()}</Text>
-          <View style={styles.dotLine} />
-          <Text style={styles.highLow}>
-            MAX {weather?.daily.tempMax[0]}° / MIN {weather?.daily.tempMin[0]}°
-          </Text>
+        {/* Current Weather Section (Image 1 Style) */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTemp}>{weather?.current.temp}°</Text>
+          <Text style={styles.heroFeelsLike}>FEELS LIKE {weather?.current.feelsLike}°</Text>
+
+          <DotIcon type={weather?.current.description} />
+
+          <Text style={styles.heroCondition}>{weather?.current.description.toUpperCase()}</Text>
         </View>
 
+        {/* Alert Banner */}
+        <View style={styles.alertBanner}>
+          <View style={styles.alertIcon} />
+          <Text style={styles.alertText}>PRECIPITATION EXPECTED LATER TODAY</Text>
+          <Text style={styles.alertInfo}>ⓘ</Text>
+        </View>
+
+        {/* Circular Stats Grid (Image 1 Bottom) */}
+        <View style={styles.circularStatsGrid}>
+          <CircularStat label="HI/LO" val={`${weather?.daily.tempMax[0]}°/${weather?.daily.tempMin[0]}°`} />
+          <CircularStat label="RAIN" val={`${weather?.hourly.precipitation[0]}%`} />
+          <CircularStat label="WIND" val={`${weather?.current.windSpeed}`} sub="KM/H" />
+          <CircularStat label="AQI" val="101" sub="POOR" color="#D71921" />
+        </View>
+
+        {/* Detailed Dashboard (Image 2 Style) */}
+        <View style={styles.detailedGrid}>
+          <RealFeelCircle value={weather?.current.feelsLike} sub="REAL FEEL" />
+          <DashboardCard title="UV INDEX" val={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Widget={UVRing} />
+          <DashboardCard title="AIR QUALITY" val="28" sub="Fair" Widget={AQIDotMatrix} />
+          <DashboardCard title="VISIBILITY" val={`${weather?.current.visibility} KM`} sub="Clear" Widget={VisibilityCone} />
+          <DashboardCard title="WIND SPEED" val={`${weather?.current.windSpeed} KM/H`} sub="Storm" Widget={UVRing} />
+          <DashboardCard title="HUMIDITY" val={`${weather?.current.humidity}%`} sub="Moderate" Widget={HumidityCylinder} />
+          <DashboardCard title="SUNSET" val={formatTime(weather?.daily.sunset[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Widget={SunsetCurve} />
+          <DashboardCard title="PRESSURE" val={`${weather?.current.pressure}`} sub="HPA" Widget={() => <View style={{ height: 40 }} />} />
+        </View>
+
+        {/* Forecast Section */}
         <View style={styles.nothingCard}>
-          <Text style={styles.cardTitle}>24-HOUR FORECAST</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <Text style={styles.sectionHeader}>24 HOURS FORECAST ›</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastScroll}>
             {weather?.hourly.time.map((time, i) => (
               <View key={i} style={styles.hourlyItem}>
-                <Text style={styles.hourlyTime}>{new Date(time).getHours()}:00</Text>
-                <Text style={styles.hourlyIcon}>{weather.hourly.icon[i]}</Text>
-                <Text style={styles.hourlyTemp}>{weather.hourly.temp[i]}°</Text>
+                <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ' AM'}</Text>
+                <Text style={styles.hourIcon}>{weather.hourly.icon[i]}</Text>
+                <Text style={styles.hourTemp}>{weather.hourly.temp[i]}°</Text>
               </View>
             ))}
           </ScrollView>
         </View>
 
         <View style={styles.nothingCard}>
-          <Text style={styles.cardTitle}>7-DAY FORECAST</Text>
+          <Text style={styles.sectionHeader}>7 DAYS FORECAST ›</Text>
           {weather?.daily.time.map((time, i) => (
-            <View key={i} style={styles.dailyItem}>
+            <View key={i} style={styles.dailyRow}>
               <Text style={styles.dailyDay}>{i === 0 ? 'TODAY' : new Date(time).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</Text>
               <Text style={styles.dailyIcon}>{weather.daily.icon[i]}</Text>
-              <View style={styles.dailyTempRange}>
-                <Text style={styles.dailyTempText}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
-              </View>
+              <Text style={styles.dailyTemps}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
             </View>
           ))}
-        </View>
-
-        <View style={styles.grid}>
-          <DetailTile label="UV INDEX" value={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Icon={Sun} />
-          <DetailTile label="SUNRISE" value={formatTime(weather?.daily.sunrise[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Icon={Sun} />
-          <DetailTile label="WIND" value={`${weather?.current.windSpeed}`} sub="KM/H" Icon={Wind} />
-          <DetailTile label="FEELS LIKE" value={`${weather?.current.feelsLike}°`} sub={`REAL: ${weather?.current.temp}°`} Icon={Thermometer} />
-          <DetailTile label="HUMIDITY" value={`${weather?.current.humidity}%`} sub="WATER" Icon={Droplets} />
-          <DetailTile label="VISIBILITY" value={`${weather?.current.visibility} KM`} sub="CLEAR" Icon={Eye} />
-          <DetailTile label="PRESSURE" value={`${weather?.current.pressure}`} sub="HPA" Icon={Gauge} />
         </View>
       </ScrollView>
 
@@ -170,7 +183,7 @@ export default function App() {
             </View>
 
             <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>UNITS</Text>
+              <Text style={styles.settingLabel}>TEMPERATURE UNITS</Text>
               <View style={styles.toggleContainer}>
                 <TouchableOpacity
                   style={[styles.toggleBtn, unit === 'celsius' && styles.toggleBtnActive]}
@@ -197,23 +210,31 @@ export default function App() {
   );
 }
 
-function DetailTile({ label, value, sub, Icon }) {
-  return (
-    <View style={styles.tile}>
-      <View style={styles.tileHeader}>
-        <Icon size={12} color="#D71921" strokeWidth={1.5} />
-        <Text style={styles.tileLabel}>{label}</Text>
-      </View>
-      <Text style={styles.tileValue}>{value}</Text>
-      <Text style={styles.tileSub}>{sub.toUpperCase()}</Text>
+const CircularStat = ({ label, val, sub, color }) => (
+  <View style={styles.circularStatContainer}>
+    <View style={[styles.circularBorder, color && { backgroundColor: color, borderColor: color }]}>
+      <Text style={[styles.circularVal, color && { color: '#fff' }]}>{val}</Text>
+      {sub && <Text style={[styles.circularSub, color && { color: '#fff' }]}>{sub}</Text>}
     </View>
-  );
-}
+    <Text style={styles.circularLabel}>{label}</Text>
+  </View>
+);
+
+const DashboardCard = ({ title, val, sub, Widget }) => (
+  <View style={styles.dashboardCard}>
+    <View style={styles.cardHeader}>
+      <Text style={styles.cardLabel}>{title}</Text>
+      <Text style={styles.cardDetail}>{sub}</Text>
+    </View>
+    <Text style={styles.cardValue}>{val}</Text>
+    {Widget && <Widget value={val} />}
+  </View>
+);
 
 function getUVDesc(val) {
-  if (val <= 2) return 'LOW';
-  if (val <= 5) return 'MID';
-  return 'HIGH';
+  if (val <= 2) return 'Low';
+  if (val <= 5) return 'Normal';
+  return 'High';
 }
 
 function formatTime(iso) {
@@ -233,171 +254,229 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   scrollContent: {
-    paddingTop: 10,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 40,
+    paddingHorizontal: 20,
+    alignItems: 'center',
     marginTop: 10,
   },
-  cityName: {
-    fontSize: 24,
-    color: '#fff',
-    fontFamily: 'Nothing-Dot',
+  cityContainer: {
+    alignItems: 'center',
   },
-  date: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.4)',
+  cityName: {
+    fontSize: 10,
+    color: '#fff',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 2,
-    marginTop: 4,
   },
-  settingsBtn: {
-    padding: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+  pagers: {
+    flexDirection: 'row',
+    marginTop: 8,
+    gap: 4,
   },
-  currentSection: {
-    alignItems: 'flex-start',
-    marginBottom: 50,
-    paddingLeft: 5,
+  pagerDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#333',
   },
-  mainTemp: {
-    fontSize: 120,
+  pagerDotActive: {
+    backgroundColor: '#D71921',
+  },
+  iconBtn: {
+    padding: 10,
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginTop: 40,
+    marginBottom: 60,
+  },
+  heroTemp: {
+    fontSize: 110,
     color: '#fff',
     fontFamily: 'Nothing-Dot',
-    lineHeight: 130,
+    lineHeight: 120,
   },
-  weatherDesc: {
+  heroFeelsLike: {
+    fontSize: 10,
+    color: '#888',
+    fontFamily: 'Nothing-Mono',
+    letterSpacing: 1,
+    marginTop: -5,
+  },
+  heroCondition: {
     fontSize: 16,
     color: '#fff',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 3,
-    marginTop: -10,
+    marginTop: 10,
   },
-  dotLine: {
-    height: 1,
-    width: 60,
+  alertBanner: {
+    flexDirection: 'row',
+    backgroundColor: '#111',
+    marginHorizontal: 20,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  alertIcon: {
+    width: 4,
+    height: 12,
     backgroundColor: '#D71921',
-    marginVertical: 15,
+    marginRight: 10,
   },
-  highLow: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
+  alertText: {
+    color: '#fff',
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 1,
+    flex: 1,
+  },
+  alertInfo: {
+    color: '#666',
+    fontSize: 12,
+  },
+  circularStatsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 10,
+    marginBottom: 40,
+  },
+  circularStatContainer: {
+    alignItems: 'center',
+  },
+  circularBorder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  circularVal: {
+    fontSize: 14,
+    color: '#fff',
+    fontFamily: 'Nothing-Dot',
+  },
+  circularSub: {
+    fontSize: 7,
+    color: '#888',
+    fontFamily: 'Nothing-Mono',
+    marginTop: 2,
+  },
+  circularLabel: {
+    fontSize: 8,
+    color: '#666',
+    fontFamily: 'Nothing-Mono',
+  },
+  detailedGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 15,
+    justifyContent: 'space-between',
+  },
+  dashboardCard: {
+    width: (width - 45) / 2,
+    backgroundColor: '#121212',
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 15,
+    minHeight: 160,
+  },
+  cardHeader: {
+    marginBottom: 10,
+  },
+  cardLabel: {
+    color: '#888',
+    fontSize: 10,
+    fontFamily: 'Nothing-Mono',
+  },
+  cardDetail: {
+    color: '#AAA',
+    fontSize: 9,
+    fontFamily: 'Nothing-Mono',
+    marginTop: 2,
+  },
+  cardValue: {
+    color: '#fff',
+    fontSize: 26,
+    fontFamily: 'Nothing-Dot',
+    marginTop: 5,
   },
   nothingCard: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    padding: 20,
-    marginBottom: 20,
-    backgroundColor: '#000',
+    marginHorizontal: 15,
+    backgroundColor: '#121212',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 15,
   },
-  cardTitle: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.4)',
+  sectionHeader: {
+    color: '#fff',
+    fontSize: 12,
     fontFamily: 'Nothing-Mono',
     letterSpacing: 1,
-    marginBottom: 20,
+    marginBottom: 30,
+  },
+  forecastScroll: {
+    flexDirection: 'row',
   },
   hourlyItem: {
     alignItems: 'center',
-    marginRight: 30,
-    minWidth: 45,
+    marginRight: 35,
   },
-  hourlyTime: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
+  hourText: {
+    color: '#888',
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  hourlyIcon: {
-    fontSize: 24,
-    marginBottom: 10,
+  hourIcon: {
+    fontSize: 20,
+    marginBottom: 15,
   },
-  hourlyTemp: {
+  hourTemp: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Nothing-Mono',
+    fontFamily: 'Nothing-Dot',
   },
-  dailyItem: {
+  dailyRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
+    borderBottomColor: '#222',
   },
   dailyDay: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#888',
+    fontSize: 12,
     fontFamily: 'Nothing-Mono',
-    width: 70,
+    width: 60,
   },
   dailyIcon: {
-    fontSize: 20,
+    fontSize: 18,
   },
-  dailyTempRange: {
-    width: 100,
-    alignItems: 'flex-end',
-  },
-  dailyTempText: {
+  dailyTemps: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'Nothing-Mono',
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  tile: {
-    width: (width - 55) / 2,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    aspectRatio: 1.2,
-    marginBottom: 15,
-    padding: 15,
-    justifyContent: 'space-between',
-  },
-  tileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  tileLabel: {
-    color: 'rgba(255,255,255,0.4)',
-    fontSize: 10,
-    fontFamily: 'Nothing-Mono',
-    letterSpacing: 1,
-  },
-  tileValue: {
-    color: '#fff',
-    fontSize: 28,
     fontFamily: 'Nothing-Dot',
-    marginVertical: 4,
-  },
-  tileSub: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 10,
-    fontFamily: 'Nothing-Mono',
-    letterSpacing: 1,
+    width: 80,
+    textAlign: 'right',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: 'rgba(0,0,0,0.95)',
     justifyContent: 'center',
     padding: 30,
   },
   modalContent: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: '#000',
+    backgroundColor: '#121212',
+    borderRadius: 24,
     padding: 30,
   },
   modalHeader: {
@@ -408,51 +487,51 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'Nothing-Dot',
   },
   settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 40,
   },
   settingLabel: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#888',
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 2,
+    marginBottom: 20,
   },
   toggleContainer: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#222',
+    padding: 4,
+    borderRadius: 12,
   },
   toggleBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
   },
   toggleBtnActive: {
-    backgroundColor: '#D71921',
+    backgroundColor: '#333',
   },
   toggleText: {
-    color: 'rgba(255,255,255,0.4)',
+    color: '#666',
     fontSize: 14,
-    fontFamily: 'Nothing-Mono',
+    fontFamily: 'Nothing-Dot',
   },
   toggleTextActive: {
     color: '#fff',
   },
   doneBtn: {
-    borderWidth: 1,
-    borderColor: '#fff',
-    padding: 15,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: 'center',
   },
   doneBtnText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 3,
+    fontWeight: 'bold',
   }
 });
