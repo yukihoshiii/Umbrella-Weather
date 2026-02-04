@@ -52,6 +52,14 @@ function setupEventListeners() {
 
     elements.unitC.onclick = () => switchUnit('celsius');
     elements.unitF.onclick = () => switchUnit('fahrenheit');
+
+    elements.app.addEventListener('touchstart', () => {
+        if (elements.app.scrollTop === 0) {
+            elements.app.scrollTop = 1;
+        } else if (elements.app.scrollHeight - elements.app.scrollTop === elements.app.clientHeight) {
+            elements.app.scrollTop = elements.app.scrollTop - 1;
+        }
+    }, { passive: true });
 }
 
 async function switchUnit(unit: 'celsius' | 'fahrenheit') {
