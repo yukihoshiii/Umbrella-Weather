@@ -5,6 +5,7 @@
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.6);
   --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
 }
 
 * {
@@ -14,10 +15,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  /* Prevent white chin */
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
-  background: #000;
   overflow-x: hidden;
   height: 100vh;
   width: 100vw;
@@ -33,7 +43,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--safe-top) + 20px) 20px 40px;
+  padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 20px);
   transition: background 1s ease;
   -webkit-overflow-scrolling: touch;
 }
@@ -230,9 +240,10 @@ h1 {
 .detail-item {
   display: flex;
   flex-direction: column;
-  aspect-ratio: 1;
+  aspect-ratio: 1.1;
+  /* Slightly less tall */
   justify-content: space-between;
-  padding: 15px;
+  padding: 12px;
 }
 
 .detail-item .label {
@@ -244,9 +255,9 @@ h1 {
 }
 
 .detail-item .value {
-  font-size: 28px;
-  font-weight: 400;
-  margin: 10px 0;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 5px 0;
 }
 
 .detail-item .subtext {
