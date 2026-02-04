@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yukihoshi.umbrellaweather"
+      "bundleIdentifier": "com.yukihoshi.umbrellaweather",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show local weather."
+      }
     },
     "android": {
       "adaptiveIcon": {
