@@ -161,15 +161,15 @@ function formatTime(iso: string): string {
 
 function updateBackground(desc: string) {
     const lowerDesc = desc.toLowerCase();
-    elements.app.className = ''; // reset
+    document.body.className = ''; // reset
 
     if (lowerDesc.includes('clear')) {
         const hour = new Date().getHours();
-        elements.app.classList.add(hour > 6 && hour < 20 ? 'weather-clear-day' : 'weather-clear-night');
+        document.body.classList.add(hour > 6 && hour < 20 ? 'weather-clear-day' : 'weather-clear-night');
     } else if (lowerDesc.includes('rain') || lowerDesc.includes('drizzle') || lowerDesc.includes('thunderstorm')) {
-        elements.app.classList.add('weather-rain');
+        document.body.classList.add('weather-rain');
     } else {
-        elements.app.classList.add('weather-cloudy');
+        document.body.classList.add('weather-cloudy');
     }
 }
 
