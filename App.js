@@ -9,8 +9,8 @@ import {
   RefreshControl,
   TouchableOpacity,
   Modal,
-  SafeAreaView
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { useFonts, DotGothic16_400Regular } from '@expo-google-fonts/dotgothic16';
@@ -81,141 +81,143 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <StatusBar style="light" />
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#D71921" />
-        }
-      >
-        {/* Top Header */}
-        <SafeAreaView style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Search size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.cityContainer}>
-            <Text style={styles.cityName}>{locationName.toUpperCase()}</Text>
-            <View style={styles.pagers}>
-              <View style={[styles.pagerDot, styles.pagerDotActive]} />
-              <View style={styles.pagerDot} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#D71921" />
+          }
+        >
+          {/* Top Header */}
+          <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
+            <TouchableOpacity style={styles.iconBtn}>
+              <Search size={22} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.cityContainer}>
+              <Text style={styles.cityName}>{locationName.toUpperCase()}</Text>
+              <View style={styles.pagers}>
+                <View style={[styles.pagerDot, styles.pagerDotActive]} />
+                <View style={styles.pagerDot} />
+              </View>
             </View>
+            <TouchableOpacity style={styles.iconBtn} onPress={() => setShowSettings(true)}>
+              <Settings size={22} color="#fff" />
+            </TouchableOpacity>
+          </SafeAreaView>
+
+          {/* Current Weather Section */}
+          <View style={styles.heroSection}>
+            <Text style={styles.heroTemp} adjustsFontSizeToFit numberOfLines={1}>{weather?.current.temp}°</Text>
+            <Text style={styles.heroFeelsLike}>FEELS LIKE {weather?.current.feelsLike}°</Text>
+
+            <View style={styles.iconWrapper}>
+              <DotIcon type={weather?.current.description} />
+            </View>
+
+            <Text style={styles.heroCondition}>{weather?.current.description.toUpperCase()}</Text>
           </View>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => setShowSettings(true)}>
-            <Settings size={24} color="#fff" />
-          </TouchableOpacity>
-        </SafeAreaView>
 
-        {/* Current Weather Section */}
-        <View style={styles.heroSection}>
-          <Text style={styles.heroTemp}>{weather?.current.temp}°</Text>
-          <Text style={styles.heroFeelsLike}>FEELS LIKE {weather?.current.feelsLike}°</Text>
-
-          <View style={styles.iconWrapper}>
-            <DotIcon type={weather?.current.description} />
+          {/* 1. 24 HOURS FORECAST */}
+          <View style={styles.nothingCard}>
+            <Text style={styles.sectionHeader}>24 HOURS FORECAST ›</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastScroll}>
+              {weather?.hourly.time.map((time, i) => (
+                <View key={i} style={styles.hourlyItem}>
+                  <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ':00'}</Text>
+                  <Text style={styles.hourIcon}>{weather.hourly.icon[i]}</Text>
+                  <Text style={styles.hourTemp}>{weather.hourly.temp[i]}°</Text>
+                </View>
+              ))}
+            </ScrollView>
           </View>
 
-          <Text style={styles.heroCondition}>{weather?.current.description.toUpperCase()}</Text>
-        </View>
-
-        {/* 1. 24 HOURS FORECAST (Moved Up) */}
-        <View style={styles.nothingCard}>
-          <Text style={styles.sectionHeader}>24 HOURS FORECAST ›</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastScroll}>
-            {weather?.hourly.time.map((time, i) => (
-              <View key={i} style={styles.hourlyItem}>
-                <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ':00'}</Text>
-                <Text style={styles.hourIcon}>{weather.hourly.icon[i]}</Text>
-                <Text style={styles.hourTemp}>{weather.hourly.temp[i]}°</Text>
+          {/* 2. 7 DAYS FORECAST */}
+          <View style={styles.nothingCard}>
+            <Text style={styles.sectionHeader}>7 DAYS FORECAST ›</Text>
+            {weather?.daily.time.map((time, i) => (
+              <View key={i} style={styles.dailyRow}>
+                <Text style={styles.dailyDay}>{i === 0 ? 'TODAY' : new Date(time).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</Text>
+                <Text style={styles.dailyIcon}>{weather.daily.icon[i]}</Text>
+                <Text style={styles.dailyTemps}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
               </View>
             ))}
-          </ScrollView>
-        </View>
+          </View>
 
-        {/* 2. 7 DAYS FORECAST (Moved Up) */}
-        <View style={styles.nothingCard}>
-          <Text style={styles.sectionHeader}>7 DAYS FORECAST ›</Text>
-          {weather?.daily.time.map((time, i) => (
-            <View key={i} style={styles.dailyRow}>
-              <Text style={styles.dailyDay}>{i === 0 ? 'TODAY' : new Date(time).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</Text>
-              <Text style={styles.dailyIcon}>{weather.daily.icon[i]}</Text>
-              <Text style={styles.dailyTemps}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
-            </View>
-          ))}
-        </View>
+          {/* Alert Banner */}
+          <View style={styles.alertBanner}>
+            <View style={styles.alertIcon} />
+            <Text style={styles.alertText}>PRECIPITATION EXPECTED LATER TODAY</Text>
+            <Text style={styles.alertInfo}>ⓘ</Text>
+          </View>
 
-        {/* Alert Banner */}
-        <View style={styles.alertBanner}>
-          <View style={styles.alertIcon} />
-          <Text style={styles.alertText}>PRECIPITATION EXPECTED LATER TODAY</Text>
-          <Text style={styles.alertInfo}>ⓘ</Text>
-        </View>
+          {/* 3. TILES */}
+          <View style={styles.circularStatsGrid}>
+            <CircularStat label="HI/LO" val={`${weather?.daily.tempMax[0]}°/${weather?.daily.tempMin[0]}°`} />
+            <CircularStat label="RAIN" val={`${weather?.hourly.precipitation[0]}%`} />
+            <CircularStat label="WIND" val={`${weather?.current.windSpeed}`} sub="KM/H" />
+            <CircularStat label="AQI" val="101" sub="POOR" color="#D71921" />
+          </View>
 
-        {/* 3. TILES (Moved Down) */}
-        <View style={styles.circularStatsGrid}>
-          <CircularStat label="HI/LO" val={`${weather?.daily.tempMax[0]}°/${weather?.daily.tempMin[0]}°`} />
-          <CircularStat label="RAIN" val={`${weather?.hourly.precipitation[0]}%`} />
-          <CircularStat label="WIND" val={`${weather?.current.windSpeed}`} sub="KM/H" />
-          <CircularStat label="AQI" val="101" sub="POOR" color="#D71921" />
-        </View>
+          <View style={styles.detailedGrid}>
+            <RealFeelCircle value={weather?.current.feelsLike} />
+            <DashboardCard title="UV INDEX" val={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Widget={UVRing} />
+            <DashboardCard title="AIR QUALITY" val="28" sub="FAIR" Widget={AQIDotMatrix} />
+            <DashboardCard title="VISIBILITY" val={`${weather?.current.visibility} KM`} sub="CLEAR" Widget={VisibilityCone} />
+            <DashboardCard title="WIND SPEED" val={`${weather?.current.windSpeed} KM/H`} sub="STORM" Widget={UVRing} />
+            <DashboardCard title="HUMIDITY" val={`${weather?.current.humidity}%`} sub="MODERATE" Widget={HumidityCylinder} />
+            <DashboardCard title="SUNSET" val={formatTime(weather?.daily.sunset[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Widget={SunsetCurve} />
+            <DashboardCard title="PRESSURE" val={`${weather?.current.pressure}`} sub="HPA" Widget={() => <View style={{ height: 40 }} />} />
+          </View>
+        </ScrollView>
 
-        <View style={styles.detailedGrid}>
-          <RealFeelCircle value={weather?.current.feelsLike} sub="REAL FEEL" />
-          <DashboardCard title="UV INDEX" val={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Widget={UVRing} />
-          <DashboardCard title="AIR QUALITY" val="28" sub="FAIR" Widget={AQIDotMatrix} />
-          <DashboardCard title="VISIBILITY" val={`${weather?.current.visibility} KM`} sub="CLEAR" Widget={VisibilityCone} />
-          <DashboardCard title="WIND SPEED" val={`${weather?.current.windSpeed} KM/H`} sub="STORM" Widget={UVRing} />
-          <DashboardCard title="HUMIDITY" val={`${weather?.current.humidity}%`} sub="MODERATE" Widget={HumidityCylinder} />
-          <DashboardCard title="SUNSET" val={formatTime(weather?.daily.sunset[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Widget={SunsetCurve} />
-          <DashboardCard title="PRESSURE" val={`${weather?.current.pressure}`} sub="HPA" Widget={() => <View style={{ height: 40 }} />} />
-        </View>
-      </ScrollView>
-
-      {/* Settings Modal */}
-      <Modal visible={showSettings} animationType="fade" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>SETTINGS</Text>
-              <TouchableOpacity onPress={() => setShowSettings(false)}>
-                <X color="#fff" size={24} strokeWidth={1} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>TEMPERATURE UNITS</Text>
-              <View style={styles.toggleContainer}>
-                <TouchableOpacity
-                  style={[styles.toggleBtn, unit === 'celsius' && styles.toggleBtnActive]}
-                  onPress={() => setUnit('celsius')}
-                >
-                  <Text style={[styles.toggleText, unit === 'celsius' && styles.toggleTextActive]}>°C</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.toggleBtn, unit === 'fahrenheit' && styles.toggleBtnActive]}
-                  onPress={() => setUnit('fahrenheit')}
-                >
-                  <Text style={[styles.toggleText, unit === 'fahrenheit' && styles.toggleTextActive]}>°F</Text>
+        {/* Settings Modal */}
+        <Modal visible={showSettings} animationType="fade" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>SETTINGS</Text>
+                <TouchableOpacity onPress={() => setShowSettings(false)}>
+                  <X color="#fff" size={24} strokeWidth={1} />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            <TouchableOpacity style={styles.doneBtn} onPress={() => setShowSettings(false)}>
-              <Text style={styles.doneBtnText}>DONE</Text>
-            </TouchableOpacity>
+              <View style={styles.settingItem}>
+                <Text style={styles.settingLabel}>TEMPERATURE UNITS</Text>
+                <View style={styles.toggleContainer}>
+                  <TouchableOpacity
+                    style={[styles.toggleBtn, unit === 'celsius' && styles.toggleBtnActive]}
+                    onPress={() => setUnit('celsius')}
+                  >
+                    <Text style={[styles.toggleText, unit === 'celsius' && styles.toggleTextActive]}>°C</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.toggleBtn, unit === 'fahrenheit' && styles.toggleBtnActive]}
+                    onPress={() => setUnit('fahrenheit')}
+                  >
+                    <Text style={[styles.toggleText, unit === 'fahrenheit' && styles.toggleTextActive]}>°F</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity style={styles.doneBtn} onPress={() => setShowSettings(false)}>
+                <Text style={styles.doneBtnText}>DONE</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </Modal>
+      </View>
+    </SafeAreaProvider>
   );
 }
 
 const CircularStat = ({ label, val, sub, color }) => (
   <View style={styles.circularStatContainer}>
     <View style={[styles.circularBorder, color && { backgroundColor: color, borderColor: color }]}>
-      <Text style={[styles.circularVal, color && { color: '#fff' }]}>{val}</Text>
+      <Text style={styles.circularVal} adjustsFontSizeToFit numberOfLines={1}>{val}</Text>
       {sub && <Text style={[styles.circularSub, color && { color: '#fff' }]}>{sub}</Text>}
     </View>
     <Text style={styles.circularLabel}>{label}</Text>
@@ -228,7 +230,7 @@ const DashboardCard = ({ title, val, sub, Widget }) => (
       <Text style={styles.cardLabel}>{title}</Text>
       <Text style={styles.cardDetail}>{sub}</Text>
     </View>
-    <Text style={styles.cardValue}>{val}</Text>
+    <Text style={styles.cardValue} adjustsFontSizeToFit numberOfLines={1}>{val}</Text>
     {Widget && <Widget value={val} />}
   </View>
 );
@@ -265,26 +267,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 25,
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 5,
   },
   cityContainer: {
     alignItems: 'center',
   },
   cityName: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#fff',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 2,
   },
   pagers: {
     flexDirection: 'row',
-    marginTop: 10,
-    gap: 6,
+    marginTop: 6,
+    gap: 4,
   },
   pagerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: '#222',
   },
   pagerDotActive: {
@@ -295,53 +297,55 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 40,
+    marginTop: 20,
+    marginBottom: 30,
   },
   heroTemp: {
-    fontSize: 130,
+    fontSize: 120,
     color: '#fff',
     fontFamily: 'Nothing-Dot',
-    lineHeight: 140,
+    lineHeight: 130,
+    width: '80%',
+    textAlign: 'center',
   },
   heroFeelsLike: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#888',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 1,
-    marginTop: -8,
+    marginTop: -5,
   },
   iconWrapper: {
-    transform: [{ scale: 1.2 }],
+    transform: [{ scale: 1.1 }],
     marginVertical: 10,
   },
   heroCondition: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#fff',
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 4,
-    marginTop: 10,
+    letterSpacing: 3,
+    marginTop: 5,
   },
   alertBanner: {
     flexDirection: 'row',
     backgroundColor: '#121212',
     marginHorizontal: 15,
-    padding: 16,
-    borderRadius: 20,
+    padding: 14,
+    borderRadius: 18,
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#222',
   },
   alertIcon: {
-    width: 5,
-    height: 15,
+    width: 4,
+    height: 12,
     backgroundColor: '#D71921',
     marginRight: 12,
   },
   alertText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
     flex: 1,
   },
@@ -353,34 +357,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingHorizontal: 10,
-    marginBottom: 30,
+    marginBottom: 25,
   },
   circularStatContainer: {
     alignItems: 'center',
   },
   circularBorder: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
     borderWidth: 1,
     borderColor: '#222',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+    paddingHorizontal: 5,
   },
   circularVal: {
-    fontSize: 16,
+    fontSize: 12,
     color: '#fff',
     fontFamily: 'Nothing-Dot',
+    textAlign: 'center',
   },
   circularSub: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#888',
     fontFamily: 'Nothing-Mono',
     marginTop: 2,
   },
   circularLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#666',
     fontFamily: 'Nothing-Mono',
   },
@@ -393,89 +399,89 @@ const styles = StyleSheet.create({
   dashboardCard: {
     width: (width - 45) / 2,
     backgroundColor: '#121212',
-    borderRadius: 28,
-    padding: 20,
+    borderRadius: 24,
+    padding: 18,
     marginBottom: 15,
-    minHeight: 180,
+    minHeight: 150, // Reduced from 180 to fix stretching
   },
   cardHeader: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   cardLabel: {
     color: '#888',
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
   },
   cardDetail: {
     color: '#666',
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: 'Nothing-Mono',
-    marginTop: 4,
+    marginTop: 2,
   },
   cardValue: {
     color: '#fff',
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Nothing-Dot',
-    marginTop: 5,
+    marginTop: 2,
   },
   nothingCard: {
     marginHorizontal: 15,
     backgroundColor: '#121212',
-    borderRadius: 28,
-    padding: 24,
+    borderRadius: 24,
+    padding: 20,
     marginBottom: 15,
   },
   sectionHeader: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Nothing-Mono',
     letterSpacing: 2,
-    marginBottom: 25,
+    marginBottom: 20,
   },
   forecastScroll: {
     flexDirection: 'row',
   },
   hourlyItem: {
     alignItems: 'center',
-    marginRight: 40,
+    marginRight: 35,
   },
   hourText: {
     color: '#666',
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
-    marginBottom: 18,
+    marginBottom: 15,
   },
   hourIcon: {
-    fontSize: 22,
-    marginBottom: 18,
+    fontSize: 20,
+    marginBottom: 15,
   },
   hourTemp: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'Nothing-Dot',
   },
   dailyRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 18,
+    paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#222',
   },
   dailyDay: {
     color: '#888',
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: 'Nothing-Mono',
-    width: 80,
+    width: 70,
   },
   dailyIcon: {
-    fontSize: 22,
+    fontSize: 18,
   },
   dailyTemps: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Nothing-Dot',
-    width: 100,
+    width: 90,
     textAlign: 'right',
   },
   modalOverlay: {
@@ -486,7 +492,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#121212',
-    borderRadius: 28,
+    borderRadius: 24,
     padding: 30,
     borderWidth: 1,
     borderColor: '#222',
@@ -495,40 +501,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 45,
+    marginBottom: 40,
   },
   modalTitle: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: 'Nothing-Dot',
   },
   settingItem: {
-    marginBottom: 50,
+    marginBottom: 40,
   },
   settingLabel: {
     color: '#888',
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: 'Nothing-Mono',
-    marginBottom: 25,
+    marginBottom: 20,
   },
   toggleContainer: {
     flexDirection: 'row',
     backgroundColor: '#222',
-    padding: 6,
-    borderRadius: 16,
+    padding: 5,
+    borderRadius: 14,
   },
   toggleBtn: {
     flex: 1,
-    paddingVertical: 15,
+    paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 10,
   },
   toggleBtnActive: {
     backgroundColor: '#444',
   },
   toggleText: {
     color: '#666',
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Nothing-Dot',
   },
   toggleTextActive: {
@@ -536,13 +542,13 @@ const styles = StyleSheet.create({
   },
   doneBtn: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 20,
-    borderRadius: 16,
+    paddingVertical: 18,
+    borderRadius: 14,
     alignItems: 'center',
   },
   doneBtnText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Nothing-Mono',
     fontWeight: 'bold',
     letterSpacing: 2,
