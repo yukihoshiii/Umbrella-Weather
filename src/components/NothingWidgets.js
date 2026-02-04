@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle, Rect, G, Defs, LinearGradient, Stop, Ellipse } from 'react-native-svg';
+
+const { width } = Dimensions.get('window');
 
 // Large White Circle for RealFeel
 export const RealFeelCircle = ({ value, sub }) => (

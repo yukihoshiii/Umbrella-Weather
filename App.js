@@ -94,7 +94,7 @@ export default function App() {
         {/* Top Header */}
         <SafeAreaView style={styles.header}>
           <TouchableOpacity style={styles.iconBtn}>
-            <Search size={22} color="#fff" />
+            <Search size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.cityContainer}>
             <Text style={styles.cityName}>{locationName.toUpperCase()}</Text>
@@ -104,54 +104,29 @@ export default function App() {
             </View>
           </View>
           <TouchableOpacity style={styles.iconBtn} onPress={() => setShowSettings(true)}>
-            <Settings size={22} color="#fff" />
+            <Settings size={24} color="#fff" />
           </TouchableOpacity>
         </SafeAreaView>
 
-        {/* Current Weather Section (Image 1 Style) */}
+        {/* Current Weather Section */}
         <View style={styles.heroSection}>
           <Text style={styles.heroTemp}>{weather?.current.temp}°</Text>
           <Text style={styles.heroFeelsLike}>FEELS LIKE {weather?.current.feelsLike}°</Text>
 
-          <DotIcon type={weather?.current.description} />
+          <View style={styles.iconWrapper}>
+            <DotIcon type={weather?.current.description} />
+          </View>
 
           <Text style={styles.heroCondition}>{weather?.current.description.toUpperCase()}</Text>
         </View>
 
-        {/* Alert Banner */}
-        <View style={styles.alertBanner}>
-          <View style={styles.alertIcon} />
-          <Text style={styles.alertText}>PRECIPITATION EXPECTED LATER TODAY</Text>
-          <Text style={styles.alertInfo}>ⓘ</Text>
-        </View>
-
-        {/* Circular Stats Grid (Image 1 Bottom) */}
-        <View style={styles.circularStatsGrid}>
-          <CircularStat label="HI/LO" val={`${weather?.daily.tempMax[0]}°/${weather?.daily.tempMin[0]}°`} />
-          <CircularStat label="RAIN" val={`${weather?.hourly.precipitation[0]}%`} />
-          <CircularStat label="WIND" val={`${weather?.current.windSpeed}`} sub="KM/H" />
-          <CircularStat label="AQI" val="101" sub="POOR" color="#D71921" />
-        </View>
-
-        {/* Detailed Dashboard (Image 2 Style) */}
-        <View style={styles.detailedGrid}>
-          <RealFeelCircle value={weather?.current.feelsLike} sub="REAL FEEL" />
-          <DashboardCard title="UV INDEX" val={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Widget={UVRing} />
-          <DashboardCard title="AIR QUALITY" val="28" sub="Fair" Widget={AQIDotMatrix} />
-          <DashboardCard title="VISIBILITY" val={`${weather?.current.visibility} KM`} sub="Clear" Widget={VisibilityCone} />
-          <DashboardCard title="WIND SPEED" val={`${weather?.current.windSpeed} KM/H`} sub="Storm" Widget={UVRing} />
-          <DashboardCard title="HUMIDITY" val={`${weather?.current.humidity}%`} sub="Moderate" Widget={HumidityCylinder} />
-          <DashboardCard title="SUNSET" val={formatTime(weather?.daily.sunset[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Widget={SunsetCurve} />
-          <DashboardCard title="PRESSURE" val={`${weather?.current.pressure}`} sub="HPA" Widget={() => <View style={{ height: 40 }} />} />
-        </View>
-
-        {/* Forecast Section */}
+        {/* 1. 24 HOURS FORECAST (Moved Up) */}
         <View style={styles.nothingCard}>
           <Text style={styles.sectionHeader}>24 HOURS FORECAST ›</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.forecastScroll}>
             {weather?.hourly.time.map((time, i) => (
               <View key={i} style={styles.hourlyItem}>
-                <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ' AM'}</Text>
+                <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ':00'}</Text>
                 <Text style={styles.hourIcon}>{weather.hourly.icon[i]}</Text>
                 <Text style={styles.hourTemp}>{weather.hourly.temp[i]}°</Text>
               </View>
@@ -159,6 +134,7 @@ export default function App() {
           </ScrollView>
         </View>
 
+        {/* 2. 7 DAYS FORECAST (Moved Up) */}
         <View style={styles.nothingCard}>
           <Text style={styles.sectionHeader}>7 DAYS FORECAST ›</Text>
           {weather?.daily.time.map((time, i) => (
@@ -168,6 +144,32 @@ export default function App() {
               <Text style={styles.dailyTemps}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
             </View>
           ))}
+        </View>
+
+        {/* Alert Banner */}
+        <View style={styles.alertBanner}>
+          <View style={styles.alertIcon} />
+          <Text style={styles.alertText}>PRECIPITATION EXPECTED LATER TODAY</Text>
+          <Text style={styles.alertInfo}>ⓘ</Text>
+        </View>
+
+        {/* 3. TILES (Moved Down) */}
+        <View style={styles.circularStatsGrid}>
+          <CircularStat label="HI/LO" val={`${weather?.daily.tempMax[0]}°/${weather?.daily.tempMin[0]}°`} />
+          <CircularStat label="RAIN" val={`${weather?.hourly.precipitation[0]}%`} />
+          <CircularStat label="WIND" val={`${weather?.current.windSpeed}`} sub="KM/H" />
+          <CircularStat label="AQI" val="101" sub="POOR" color="#D71921" />
+        </View>
+
+        <View style={styles.detailedGrid}>
+          <RealFeelCircle value={weather?.current.feelsLike} sub="REAL FEEL" />
+          <DashboardCard title="UV INDEX" val={weather?.current.uvIndex} sub={getUVDesc(weather?.current.uvIndex)} Widget={UVRing} />
+          <DashboardCard title="AIR QUALITY" val="28" sub="FAIR" Widget={AQIDotMatrix} />
+          <DashboardCard title="VISIBILITY" val={`${weather?.current.visibility} KM`} sub="CLEAR" Widget={VisibilityCone} />
+          <DashboardCard title="WIND SPEED" val={`${weather?.current.windSpeed} KM/H`} sub="STORM" Widget={UVRing} />
+          <DashboardCard title="HUMIDITY" val={`${weather?.current.humidity}%`} sub="MODERATE" Widget={HumidityCylinder} />
+          <DashboardCard title="SUNSET" val={formatTime(weather?.daily.sunset[0])} sub={`SET: ${formatTime(weather?.daily.sunset[0])}`} Widget={SunsetCurve} />
+          <DashboardCard title="PRESSURE" val={`${weather?.current.pressure}`} sub="HPA" Widget={() => <View style={{ height: 40 }} />} />
         </View>
       </ScrollView>
 
@@ -239,7 +241,9 @@ function getUVDesc(val) {
 
 function formatTime(iso) {
   const date = new Date(iso);
-  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 
 const styles = StyleSheet.create({
@@ -259,29 +263,29 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 15,
   },
   cityContainer: {
     alignItems: 'center',
   },
   cityName: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#fff',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 2,
   },
   pagers: {
     flexDirection: 'row',
-    marginTop: 8,
-    gap: 4,
+    marginTop: 10,
+    gap: 6,
   },
   pagerDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#333',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#222',
   },
   pagerDotActive: {
     backgroundColor: '#D71921',
@@ -291,86 +295,92 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 60,
+    marginTop: 30,
+    marginBottom: 40,
   },
   heroTemp: {
-    fontSize: 110,
+    fontSize: 130,
     color: '#fff',
     fontFamily: 'Nothing-Dot',
-    lineHeight: 120,
+    lineHeight: 140,
   },
   heroFeelsLike: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#888',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 1,
-    marginTop: -5,
+    marginTop: -8,
+  },
+  iconWrapper: {
+    transform: [{ scale: 1.2 }],
+    marginVertical: 10,
   },
   heroCondition: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 3,
+    letterSpacing: 4,
     marginTop: 10,
   },
   alertBanner: {
     flexDirection: 'row',
-    backgroundColor: '#111',
-    marginHorizontal: 20,
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#121212',
+    marginHorizontal: 15,
+    padding: 16,
+    borderRadius: 20,
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#222',
   },
   alertIcon: {
-    width: 4,
-    height: 12,
+    width: 5,
+    height: 15,
     backgroundColor: '#D71921',
-    marginRight: 10,
+    marginRight: 12,
   },
   alertText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: 'Nothing-Mono',
     flex: 1,
   },
   alertInfo: {
     color: '#666',
-    fontSize: 12,
+    fontSize: 14,
   },
   circularStatsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingHorizontal: 10,
-    marginBottom: 40,
+    marginBottom: 30,
   },
   circularStatContainer: {
     alignItems: 'center',
   },
   circularBorder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#222',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   circularVal: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#fff',
     fontFamily: 'Nothing-Dot',
   },
   circularSub: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#888',
     fontFamily: 'Nothing-Mono',
     marginTop: 2,
   },
   circularLabel: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#666',
     fontFamily: 'Nothing-Mono',
   },
@@ -383,140 +393,142 @@ const styles = StyleSheet.create({
   dashboardCard: {
     width: (width - 45) / 2,
     backgroundColor: '#121212',
-    borderRadius: 24,
-    padding: 18,
+    borderRadius: 28,
+    padding: 20,
     marginBottom: 15,
-    minHeight: 160,
+    minHeight: 180,
   },
   cardHeader: {
-    marginBottom: 10,
+    marginBottom: 15,
   },
   cardLabel: {
     color: '#888',
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: 'Nothing-Mono',
   },
   cardDetail: {
-    color: '#AAA',
-    fontSize: 9,
+    color: '#666',
+    fontSize: 10,
     fontFamily: 'Nothing-Mono',
-    marginTop: 2,
+    marginTop: 4,
   },
   cardValue: {
     color: '#fff',
-    fontSize: 26,
+    fontSize: 32,
     fontFamily: 'Nothing-Dot',
     marginTop: 5,
   },
   nothingCard: {
     marginHorizontal: 15,
     backgroundColor: '#121212',
-    borderRadius: 24,
+    borderRadius: 28,
     padding: 24,
     marginBottom: 15,
   },
   sectionHeader: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Nothing-Mono',
-    letterSpacing: 1,
-    marginBottom: 30,
+    letterSpacing: 2,
+    marginBottom: 25,
   },
   forecastScroll: {
     flexDirection: 'row',
   },
   hourlyItem: {
     alignItems: 'center',
-    marginRight: 35,
+    marginRight: 40,
   },
   hourText: {
-    color: '#888',
-    fontSize: 10,
+    color: '#666',
+    fontSize: 11,
     fontFamily: 'Nothing-Mono',
-    marginBottom: 15,
+    marginBottom: 18,
   },
   hourIcon: {
-    fontSize: 20,
-    marginBottom: 15,
+    fontSize: 22,
+    marginBottom: 18,
   },
   hourTemp: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Nothing-Dot',
   },
   dailyRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 18,
     borderBottomWidth: 1,
     borderBottomColor: '#222',
   },
   dailyDay: {
     color: '#888',
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 'Nothing-Mono',
-    width: 60,
+    width: 80,
   },
   dailyIcon: {
-    fontSize: 18,
+    fontSize: 22,
   },
   dailyTemps: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Nothing-Dot',
-    width: 80,
+    width: 100,
     textAlign: 'right',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
+    backgroundColor: 'rgba(0,0,0,0.98)',
     justifyContent: 'center',
-    padding: 30,
+    padding: 20,
   },
   modalContent: {
     backgroundColor: '#121212',
-    borderRadius: 24,
+    borderRadius: 28,
     padding: 30,
+    borderWidth: 1,
+    borderColor: '#222',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 45,
   },
   modalTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 22,
     fontFamily: 'Nothing-Dot',
   },
   settingItem: {
-    marginBottom: 40,
+    marginBottom: 50,
   },
   settingLabel: {
     color: '#888',
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: 'Nothing-Mono',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   toggleContainer: {
     flexDirection: 'row',
     backgroundColor: '#222',
-    padding: 4,
-    borderRadius: 12,
+    padding: 6,
+    borderRadius: 16,
   },
   toggleBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 15,
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 12,
   },
   toggleBtnActive: {
-    backgroundColor: '#333',
+    backgroundColor: '#444',
   },
   toggleText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Nothing-Dot',
   },
   toggleTextActive: {
@@ -524,14 +536,15 @@ const styles = StyleSheet.create({
   },
   doneBtn: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 18,
-    borderRadius: 12,
+    paddingVertical: 20,
+    borderRadius: 16,
     alignItems: 'center',
   },
   doneBtnText: {
     color: '#000',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Nothing-Mono',
     fontWeight: 'bold',
+    letterSpacing: 2,
   }
 });
