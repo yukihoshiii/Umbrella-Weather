@@ -18,6 +18,17 @@ const elements = {
     closeSettings: document.getElementById('close-settings')!,
     unitC: document.getElementById('unit-c')!,
     unitF: document.getElementById('unit-f')!,
+
+    // New details
+    uvIndex: document.getElementById('uv-index')!,
+    uvDesc: document.getElementById('uv-desc')!,
+    sunrise: document.getElementById('sunrise')!,
+    sunsetLabel: document.getElementById('sunset-label')!,
+    windSpeed: document.getElementById('wind-speed')!,
+    feelsLike: document.getElementById('feels-like')!,
+    humidity: document.getElementById('humidity')!,
+    visibility: document.getElementById('visibility')!,
+    pressure: document.getElementById('pressure')!,
 };
 
 async function init() {
@@ -99,6 +110,17 @@ function renderWeather(data: WeatherData) {
     elements.highTemp.textContent = data.daily.tempMax[0].toString();
     elements.lowTemp.textContent = data.daily.tempMin[0].toString();
 
+    // Details
+    elements.uvIndex.textContent = data.current.uvIndex.toString();
+    elements.uvDesc.textContent = getUVDescription(data.current.uvIndex);
+    elements.sunrise.textContent = formatTime(data.daily.sunrise[0]);
+    elements.sunsetLabel.textContent = `Sunset: ${formatTime(data.daily.sunset[0])}`;
+    elements.windSpeed.textContent = data.current.windSpeed.toString();
+    elements.feelsLike.textContent = `${data.current.feelsLike}°`;
+    elements.humidity.textContent = `${data.current.humidity}%`;
+    elements.visibility.textContent = `${data.current.visibility} km`;
+    elements.pressure.textContent = `${data.current.pressure} hPa`;
+
     // Hourly
     elements.hourlyList.innerHTML = data.hourly.time.map((time, i) => `
     <div class="hourly-item">
@@ -123,6 +145,18 @@ function renderWeather(data: WeatherData) {
       </div>
     `;
     }).join('');
+}
+
+function getUVDescription(idx: number): string {
+    if (idx <= 2) return 'Low';
+    if (idx <= 5) return 'Moderate';
+    if (idx <= 7) return 'High';
+    if (idx <= 10) return 'Very High';
+    return 'Extreme';
+}
+
+function formatTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 function updateBackground(desc: string) {

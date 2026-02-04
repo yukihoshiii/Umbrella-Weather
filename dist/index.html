@@ -1,62 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Umbrella Weather</title>
-    <script type="module" crossorigin src="/assets/index-BczQg-WM.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BkDURTjH.css">
-  </head>
-  <body>
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Weather" />
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" />
+  <script type="module" crossorigin src="./assets/index-7WgfF_Ns.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DdLCTZw8.css">
+</head>
+
+<body>
     <div id="app" class="weather-clear-day">
-      <header>
-        <div class="location-container">
-          <h1 id="city-name">Loading...</h1>
-          <p id="current-date"></p>
-        </div>
-        <button id="settings-btn" aria-label="Settings">⚙️</button>
-      </header>
-
-      <main>
-        <section id="current-weather">
-          <div class="temp-container">
-            <span id="main-temp">--</span><span class="unit">°</span>
-          </div>
-          <p id="weather-desc">Searching for sunshine...</p>
-          <div class="high-low">
-            H:<span id="high-temp">--</span>° L:<span id="low-temp">--</span>°
-          </div>
-        </section>
-
-        <section class="glass-card" id="hourly-forecast">
-          <h2>Hourly Forecast</h2>
-          <div class="scroll-x" id="hourly-list">
-            <!-- Hourly items will be injected here -->
-          </div>
-        </section>
-
-        <section class="glass-card" id="daily-forecast">
-          <h2>7-Day Forecast</h2>
-          <div id="daily-list">
-            <!-- Daily items will be injected here -->
-          </div>
-        </section>
-      </main>
-
-      <!-- Settings Modal -->
-      <div id="settings-modal" class="modal hidden">
-        <div class="modal-content glass-card">
-          <h2>Settings</h2>
-          <div class="setting-item">
-            <span>Units</span>
-            <div class="toggle-group">
-              <button id="unit-c" class="active">°C</button>
-              <button id="unit-f">°F</button>
+        <header>
+            <div class="location-container">
+                <h1 id="city-name">Loading...</h1>
+                <p id="current-date"></p>
             </div>
-          </div>
-          <button id="close-settings">Done</button>
+            <button id="settings-btn" aria-label="Settings">⚙️</button>
+        </header>
+
+        <main>
+            <section id="current-weather">
+                <div class="temp-container">
+                    <span id="main-temp">--</span><span class="unit">°</span>
+                </div>
+                <p id="weather-desc">Searching for sunshine...</p>
+                <div class="high-low">
+                    H:<span id="high-temp">--</span>° L:<span id="low-temp">--</span>°
+                </div>
+            </section>
+
+            <section class="glass-card" id="hourly-forecast">
+                <h2>Hourly Forecast</h2>
+                <div class="scroll-x" id="hourly-list">
+                    <!-- Hourly items will be injected here -->
+                </div>
+            </section>
+
+            <section class="glass-card" id="daily-forecast">
+                <h2>7-Day Forecast</h2>
+                <div id="daily-list">
+                    <!-- Daily items will be injected here -->
+                </div>
+            </section>
+
+            <div class="details-grid">
+                <div class="glass-card detail-item">
+                    <span class="label">UV INDEX</span>
+                    <span class="value" id="uv-index">--</span>
+                    <span class="subtext" id="uv-desc">Low</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">SUNRISE</span>
+                    <span class="value" id="sunrise">--</span>
+                    <span class="subtext" id="sunset-label">Sunset: --</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">WIND</span>
+                    <span class="value" id="wind-speed">--</span>
+                    <span class="subtext">km/h</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">FEELS LIKE</span>
+                    <span class="value" id="feels-like">--</span>
+                    <span class="subtext">Actual: --°</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">HUMIDITY</span>
+                    <span class="value" id="humidity">--%</span>
+                    <span class="subtext">Dew point: --</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">VISIBILITY</span>
+                    <span class="value" id="visibility">-- km</span>
+                    <span class="subtext">Clear view</span>
+                </div>
+                <div class="glass-card detail-item">
+                    <span class="label">PRESSURE</span>
+                    <span class="value" id="pressure">-- hPa</span>
+                    <span class="subtext">Steady</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <h2>Settings</h2>
+                <div class="setting-item">
+                    <span>Units</span>
+                    <div class="toggle-group">
+                        <button id="unit-c" class="active">°C</button>
+                        <button id="unit-f">°F</button>
+                    </div>
+                </div>
+                <button id="close-settings">Done</button>
+            </div>
         </div>
-      </div>
     </div>
-  </body>
+</body>
+
 </html>

@@ -1,9 +1,9 @@
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-blur: blur(25px);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.15);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-secondary: rgba(255, 255, 255, 0.6);
   --safe-top: env(safe-area-inset-top);
 }
 
@@ -18,62 +18,79 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   background: #000;
-  overflow: hidden;
-  height: 100vh;
+  overflow-x: hidden;
 }
 
 #app {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: calc(var(--safe-top) + 20px) 20px 20px;
+  padding: calc(var(--safe-top) + 20px) 20px 40px;
   transition: background 1s ease;
-  overflow-y: auto;
 }
 
 /* Backgrounds */
-.weather-clear-day { background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); }
-.weather-clear-night { background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); }
-.weather-rain { background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); }
-.weather-cloudy { background: linear-gradient(180deg, #606c88 0%, #3f4c6b 100%); }
+.weather-clear-day {
+  background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.weather-clear-night {
+  background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.weather-rain {
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+.weather-cloudy {
+  background: linear-gradient(180deg, #606c88 0%, #3f4c6b 100%);
+}
 
 header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 h1 {
-  font-size: 32px;
-  font-weight: 300;
+  font-size: 28px;
+  font-weight: 400;
 }
 
 #current-date {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 #settings-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.15);
   border: none;
-  font-size: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
   cursor: pointer;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
 }
 
 #current-weather {
   text-align: center;
   margin-bottom: 40px;
+  padding: 20px 0;
 }
 
 .temp-container {
-  font-size: 96px;
+  font-size: 100px;
   font-weight: 200;
   position: relative;
   display: inline-block;
+  margin-left: 20px;
 }
 
 .unit {
@@ -84,14 +101,14 @@ h1 {
 }
 
 #weather-desc {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 400;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 .high-low {
   font-size: 18px;
-  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .glass-card {
@@ -99,26 +116,28 @@ h1 {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 15px;
   margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .glass-card h2 {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--text-secondary);
-  margin-bottom: 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding-bottom: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .scroll-x {
   display: flex;
   overflow-x: auto;
   gap: 20px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
   scrollbar-width: none;
 }
 
@@ -130,25 +149,87 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 50px;
+  min-width: 45px;
 }
 
-.hourly-item .time { font-size: 13px; margin-bottom: 10px; }
-.hourly-item .icon { font-size: 24px; margin-bottom: 10px; }
-.hourly-item .temp { font-size: 16px; font-weight: 600; }
+.hourly-item .time {
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.hourly-item .icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.hourly-item .temp {
+  font-size: 17px;
+  font-weight: 500;
+}
 
 .daily-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.daily-item:last-child { border: none; }
-.daily-item .day { width: 40px; font-weight: 600; }
-.daily-item .icon { font-size: 20px; }
-.daily-item .temp-range { width: 100px; text-align: right; }
+.daily-item:last-child {
+  border: none;
+}
+
+.daily-item .day {
+  width: 50px;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.daily-item .icon {
+  font-size: 22px;
+}
+
+.daily-item .temp-range {
+  width: 110px;
+  text-align: right;
+  font-size: 16px;
+}
+
+/* Details Grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1;
+  justify-content: space-between;
+  padding: 15px;
+}
+
+.detail-item .label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item .value {
+  font-size: 28px;
+  font-weight: 400;
+  margin: 10px 0;
+}
+
+.detail-item .subtext {
+  font-size: 13px;
+  color: var(--text-primary);
+  opacity: 0.9;
+}
 
 /* Modal */
 .modal {
@@ -161,42 +242,48 @@ h1 {
   justify-content: center;
   align-items: center;
   z-index: 100;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
 }
 
-.modal.hidden { display: none; }
+.modal.hidden {
+  display: none;
+}
 
 .modal-content {
-  width: 80%;
+  width: 85%;
   max-width: 400px;
+  padding: 25px;
 }
 
 .setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
+  margin: 25px 0;
 }
 
 .toggle-group {
   display: flex;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
-  padding: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 3px;
 }
 
 .toggle-group button {
   background: none;
   border: none;
   color: #fff;
-  padding: 6px 15px;
-  border-radius: 8px;
+  padding: 8px 18px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .toggle-group button.active {
-  background: rgba(255,255,255,0.2);
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 #close-settings {
@@ -204,8 +291,9 @@ h1 {
   background: #fff;
   color: #000;
   border: none;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px;
+  border-radius: 12px;
   font-weight: 600;
   margin-top: 20px;
+  font-size: 16px;
 }
