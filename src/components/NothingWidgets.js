@@ -4,6 +4,8 @@ import Svg, { Path, Circle, Rect, G, Defs, LinearGradient, Stop, Ellipse } from 
 
 const { width } = Dimensions.get('window');
 
+const cardWidth = (width - 45) / 2;
+
 // Large White Circle for RealFeel
 export const RealFeelCircle = ({ value }) => (
     <View style={styles.realFeelContainer}>
@@ -76,16 +78,16 @@ export const AQIDotMatrix = () => (
 
 const styles = StyleSheet.create({
     realFeelContainer: {
-        width: (width - 45) / 2, // Match card width exactly
-        aspectRatio: 1,
+        width: cardWidth,
+        height: cardWidth, // Force square
         justifyContent: 'center',
         alignItems: 'center',
     },
     whiteCircle: {
-        width: '95%',
-        height: '95%',
+        width: cardWidth - 10,
+        height: cardWidth - 10, // Force square
         backgroundColor: '#FFFFFF',
-        borderRadius: 1000,
+        borderRadius: (cardWidth - 10) / 2, // Perfect radius
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -96,12 +98,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     realFeelValue: {
-        fontSize: 40, // Increased size
+        fontSize: 40,
         fontFamily: 'Nothing-Dot',
         color: '#000',
     },
     widgetSubContainer: {
-        height: 50, // Reduced height to prevent stretching
+        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 5,

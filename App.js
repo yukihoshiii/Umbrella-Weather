@@ -15,12 +15,23 @@ import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
 import { useFonts, DotGothic16_400Regular } from '@expo-google-fonts/dotgothic16';
 import { VT323_400Regular } from '@expo-google-fonts/vt323';
-import { Settings, Search, X } from 'lucide-react-native';
+import { Settings, Search, X, Sun, Cloud, CloudRain, Snowflake, CloudLightning, SunDim } from 'lucide-react-native';
 import { fetchWeather, reverseGeocode } from './src/api';
 import { RealFeelCircle, UVRing, VisibilityCone, HumidityCylinder, SunsetCurve, AQIDotMatrix } from './src/components/NothingWidgets';
 import { DotIcon } from './src/components/DotIcons';
 
 const { width } = Dimensions.get('window');
+
+const getIcon = (code) => {
+  if (code === 0) return <Sun size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 1 && code <= 3) return <Cloud size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 51 && code <= 67) return <CloudRain size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 71 && code <= 77) return <Snowflake size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 80 && code <= 82) return <CloudRain size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 85 && code <= 86) return <Snowflake size={20} color="#fff" strokeWidth={1.5} />;
+  if (code >= 95) return <CloudLightning size={20} color="#fff" strokeWidth={1.5} />;
+  return <SunDim size={20} color="#fff" strokeWidth={1.5} />;
+};
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -115,7 +126,7 @@ export default function App() {
             <Text style={styles.heroFeelsLike}>FEELS LIKE {weather?.current.feelsLike}°</Text>
 
             <View style={styles.iconWrapper}>
-              <DotIcon type={weather?.current.description} />
+              <DotIcon type={weather?.current.description} scale={1.5} />
             </View>
 
             <Text style={styles.heroCondition}>{weather?.current.description.toUpperCase()}</Text>
@@ -128,7 +139,9 @@ export default function App() {
               {weather?.hourly.time.map((time, i) => (
                 <View key={i} style={styles.hourlyItem}>
                   <Text style={styles.hourText}>{i === 0 ? 'NOW' : new Date(time).getHours() + ':00'}</Text>
-                  <Text style={styles.hourIcon}>{weather.hourly.icon[i]}</Text>
+                  <View style={styles.listIconContainer}>
+                    {getIcon(weather.hourly.codes[i])}
+                  </View>
                   <Text style={styles.hourTemp}>{weather.hourly.temp[i]}°</Text>
                 </View>
               ))}
@@ -141,7 +154,9 @@ export default function App() {
             {weather?.daily.time.map((time, i) => (
               <View key={i} style={styles.dailyRow}>
                 <Text style={styles.dailyDay}>{i === 0 ? 'TODAY' : new Date(time).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</Text>
-                <Text style={styles.dailyIcon}>{weather.daily.icon[i]}</Text>
+                <View style={styles.dailyIconWrapper}>
+                  {getIcon(weather.daily.codes[i])}
+                </View>
                 <Text style={styles.dailyTemps}>{weather.daily.tempMax[i]}° / {weather.daily.tempMin[i]}°</Text>
               </View>
             ))}
@@ -301,23 +316,24 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   heroTemp: {
-    fontSize: 120,
+    fontSize: 140, // Back to large
     color: '#fff',
     fontFamily: 'Nothing-Dot',
-    lineHeight: 130,
-    width: '80%',
+    lineHeight: 150,
+    width: '90%',
     textAlign: 'center',
   },
   heroFeelsLike: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#888',
     fontFamily: 'Nothing-Mono',
     letterSpacing: 1,
     marginTop: -5,
   },
   iconWrapper: {
-    transform: [{ scale: 1.1 }],
-    marginVertical: 10,
+    marginVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroCondition: {
     fontSize: 16,
@@ -371,7 +387,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
-    paddingHorizontal: 5,
   },
   circularVal: {
     fontSize: 12,
@@ -395,6 +410,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     paddingHorizontal: 15,
     justifyContent: 'space-between',
+    alignItems: 'flex-start', // Fix vertical stretching
   },
   dashboardCard: {
     width: (width - 45) / 2,
@@ -402,7 +418,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
     marginBottom: 15,
-    minHeight: 150, // Reduced from 180 to fix stretching
+    minHeight: 150,
   },
   cardHeader: {
     marginBottom: 10,
@@ -451,8 +467,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Nothing-Mono',
     marginBottom: 15,
   },
-  hourIcon: {
-    fontSize: 20,
+  listIconContainer: {
+    height: 30,
+    justifyContent: 'center',
     marginBottom: 15,
   },
   hourTemp: {
@@ -474,8 +491,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Nothing-Mono',
     width: 70,
   },
-  dailyIcon: {
-    fontSize: 18,
+  dailyIconWrapper: {
+    width: 30,
+    alignItems: 'center',
   },
   dailyTemps: {
     color: '#fff',

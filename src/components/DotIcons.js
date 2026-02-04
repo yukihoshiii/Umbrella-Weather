@@ -6,7 +6,11 @@ const DOT_SIZE = 4;
 const SPACING = 2;
 
 const DotGrid = ({ grid, activeColor = "#FFF", inactiveColor = "#111" }) => (
-    <Svg height={grid.length * (DOT_SIZE + SPACING)} width={grid[0].length * (DOT_SIZE + SPACING)}>
+    <Svg
+        height={grid.length * (DOT_SIZE + SPACING)}
+        width={grid[0].length * (DOT_SIZE + SPACING)}
+        style={{ alignSelf: 'center' }}
+    >
         {grid.map((row, r) =>
             row.split('').map((dot, c) => (
                 <Circle
@@ -43,13 +47,34 @@ const CLOUD = [
     "1111111111111111",
 ];
 
-export const DotIcon = ({ type }) => {
+const RAIN = [
+    "   111111   ",
+    " 1111111111 ",
+    "111111111111",
+    "111111111111",
+    "            ",
+    "  1  1  1  1",
+    "  1  1  1  1",
+];
+
+const SNOW = [
+    "   1  1   ",
+    "    11    ",
+    "1111111111",
+    "    11    ",
+    "   1  1   ",
+];
+
+export const DotIcon = ({ type, scale = 1 }) => {
     let grid = SUN;
-    if (type === 'Cloud' || type === 'Overcast') grid = CLOUD;
-    // Add more patterns as needed
+    const lowerType = type?.toLowerCase() || '';
+
+    if (lowerType.includes('cloud') || lowerType.includes('overcast')) grid = CLOUD;
+    if (lowerType.includes('rain') || lowerType.includes('drizzle')) grid = RAIN;
+    if (lowerType.includes('snow')) grid = SNOW;
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { transform: [{ scale }] }]}>
             <DotGrid grid={grid} />
         </View>
     );
@@ -59,6 +84,6 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 20,
+        marginVertical: 10,
     }
 });

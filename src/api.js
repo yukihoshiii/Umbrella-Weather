@@ -48,6 +48,7 @@ export async function fetchWeather(lat, lon, unit = 'celsius') {
         hourly: {
             time: data.hourly.time.slice(0, 24),
             temp: data.hourly.temperature_2m.slice(0, 24).map(Math.round),
+            codes: data.hourly.weather_code.slice(0, 24),
             icon: data.hourly.weather_code.slice(0, 24).map((code) => WEATHER_CODES[code]?.icon || '❓'),
             precipitation: data.hourly.precipitation_probability.slice(0, 24),
         },
@@ -55,6 +56,7 @@ export async function fetchWeather(lat, lon, unit = 'celsius') {
             time: data.daily.time,
             tempMax: data.daily.temperature_2m_max.map(Math.round),
             tempMin: data.daily.temperature_2m_min.map(Math.round),
+            codes: data.daily.weather_code,
             icon: data.daily.weather_code.map((code) => WEATHER_CODES[code]?.icon || '❓'),
             sunrise: data.daily.sunrise,
             sunset: data.daily.sunset,
