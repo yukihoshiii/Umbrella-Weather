@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Umbrella Weather</title>
+    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Weather" />
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1163/1163624.png" />
+</head>
+
+<body>
+    <div id="app" class="weather-clear-day">
+        <header>
+            <div class="location-container">
+                <h1 id="city-name">Loading...</h1>
+                <p id="current-date"></p>
+            </div>
+            <button id="settings-btn" aria-label="Settings">⚙️</button>
+        </header>
+
+        <main>
+            <section id="current-weather">
+                <div class="temp-container">
+                    <span id="main-temp">--</span><span class="unit">°</span>
+                </div>
+                <p id="weather-desc">Searching for sunshine...</p>
+                <div class="high-low">
+                    H:<span id="high-temp">--</span>° L:<span id="low-temp">--</span>°
+                </div>
+            </section>
+
+            <section class="glass-card" id="hourly-forecast">
+                <h2>Hourly Forecast</h2>
+                <div class="scroll-x" id="hourly-list">
+                    <!-- Hourly items will be injected here -->
+                </div>
+            </section>
+
+            <section class="glass-card" id="daily-forecast">
+                <h2>7-Day Forecast</h2>
+                <div id="daily-list">
+                    <!-- Daily items will be injected here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <h2>Settings</h2>
+                <div class="setting-item">
+                    <span>Units</span>
+                    <div class="toggle-group">
+                        <button id="unit-c" class="active">°C</button>
+                        <button id="unit-f">°F</button>
+                    </div>
+                </div>
+                <button id="close-settings">Done</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
